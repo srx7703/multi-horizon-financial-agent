@@ -1,0 +1,48 @@
+# --- System / editor ---
+.DS_Store
+*.swp
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# --- Python ---
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.python-version
+
+# --- Tooling caches ---
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Runtime artifacts ---
+outputs/*.md
+outputs/*.png
+outputs/*.json
+outputs/*.zip
+!outputs/.gitkeep
+
+# --- Eval runs (large, regenerable) ---
+eval/runs/
+
+# --- SEC cache (local downloader output) ---
+sec-edgar-filings/
+sec_cache/
+
+# --- Logs ---
+*.log
+nohup.out

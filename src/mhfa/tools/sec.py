@@ -150,6 +150,11 @@ def list_indexed_tickers() -> list[str]:
 
     Useful for the CLI's ``--list-tickers`` and for the planner's "is this
     ticker in our corpus?" precheck.
+
+    Accepts US-style tickers including punctuated share-class variants
+    (BRK.B / BRK-A / BF.B). Filters out junk tokens (e.g. fiscal-year stubs)
+    by requiring uppercase first char, length ≤6, and only letters / dots /
+    hyphens in the symbol.
     """
     tickers: set[str] = set()
     root = _local_root()
@@ -159,6 +164,10 @@ def list_indexed_tickers() -> list[str]:
             continue
         for p in d.glob("*.json"):
             t = p.stem.split("_")[0]
-            if t.isupper() and t.isalpha():
+            if (
+                1 <= len(t) <= 6
+                and t[0].isupper()
+                and all(c.isalpha() or c in ".-" for c in t)
+            ):
                 tickers.add(t)
     return sorted(tickers)

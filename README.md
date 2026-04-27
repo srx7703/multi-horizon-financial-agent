@@ -152,6 +152,21 @@ tests/                 hermetic — uses MockProvider + fake SEC dir
 
 ---
 
+## Further reading
+
+- [`docs/HOW_IT_WORKS.md`](docs/HOW_IT_WORKS.md) — long-form walkthrough of
+  the design tensions and how each one resolved (planner shape, Vertex vs
+  direct, layered routing, hand-curated golden briefs, what I'd do
+  differently). Read this if you want to understand *why* the moving parts
+  are shaped the way they are.
+- [`DECISIONS.md`](DECISIONS.md) — D-001 through D-008, terse one-paragraph
+  rationale per architectural choice.
+- [`SPRINT_PLAN.md`](SPRINT_PLAN.md) — the actual hour-by-hour MVP plan.
+- [`eval/golden/`](eval/golden/) — hand-curated reference briefs used as the
+  Phase 2 A/B baseline.
+
+---
+
 ## Roadmap
 
 See [ROADMAP.md](ROADMAP.md) for full phasing. Headline:

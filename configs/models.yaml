@@ -4,19 +4,19 @@
 
 roles:
   planner:
-    model: claude-sonnet-4-5
+    model: claude-sonnet-4-6
     max_tokens: 2000
     temperature: 0.0
     rationale: "Structured tool plan; quality plateaus before Opus, Sonnet is the cost/latency sweet spot."
 
   tool_synth:
-    model: claude-sonnet-4-5
+    model: claude-sonnet-4-6
     max_tokens: 4000
     temperature: 0.2
     rationale: "Mid-loop per-document summarization. High call volume; Sonnet beats Opus on cost-per-summary."
 
   synthesizer:
-    model: claude-opus-4-5
+    model: claude-opus-4-7
     max_tokens: 8000
     temperature: 0.3
     rationale: "User-facing final brief. This is what people read; quality drives entire project value."

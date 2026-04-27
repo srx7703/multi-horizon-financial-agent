@@ -1,0 +1,12 @@
+{
+  "score": 0.944,
+  "total_claims": 18,
+  "verified_claims": 17,
+  "flagged": [
+    {
+      "claim": "EPS (diluted) +59.8%",
+      "verdict": "contradicted",
+      "reason": "The source states that Diluted EPS is $5.16 (vs $3.23 YoY), which implies a YoY increase of 59.75%, not 59.8%."
+    }
+  ]
+}

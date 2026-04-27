@@ -1,0 +1,12 @@
+{
+  "score": 0.958,
+  "total_claims": 24,
+  "verified_claims": 23,
+  "flagged": [
+    {
+      "claim": "5 hits",
+      "verdict": "not_found",
+      "reason": "The provided sources do not contain any information about '5 hits'."
+    }
+  ]
+}

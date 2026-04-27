@@ -23,7 +23,7 @@
 
 ---
 
-## TL;DR
+## See it run
 
 ```bash
 mhfa earnings-recap NVDA --output ./outputs
@@ -32,10 +32,52 @@ mhfa earnings-recap NVDA --output ./outputs
 # → outputs/NVDA_<YYYYMMDD>_raw.json  (raw tool output, for eval)
 ```
 
-The brief is structured: exec summary, financial highlights table, price action
-+ chart, recent catalysts, key risks, sources. Every numeric claim is required
-to cite a source already in the raw tool output (the synthesizer's hard rule),
-and the factuality eval verifies that rule held.
+<!-- Replace with real screenshots after running locally — see docs/HOW_TO_SCREENSHOT.md -->
+<table>
+<tr>
+<td width="50%" valign="top">
+
+**Sample brief output**
+([full markdown](docs/assets/demo_brief_nvda.md))
+
+> NVIDIA reported another quarter of explosive growth, with Q3 FY26 revenue
+> reaching **$57.01 billion** [10-Q], up **62.5% YoY**. Net income surged to
+> **$31.91 billion**, and the company executed **$12.57 billion in share
+> repurchases**…
+>
+> **Key risk**: inventories increased **+96%** since January 2025 to **$19.78
+> billion**, creating risk of write-downs if demand shifts.
+
+</td>
+<td width="50%" valign="top">
+
+**Price chart (3-month, auto-generated)**
+
+![NVDA 3-month chart](docs/assets/demo_chart_nvda.png)
+
+</td>
+</tr>
+</table>
+
+The brief is structured (exec summary → financial highlights table → price
+action + chart → recent catalysts → key risks → sources). Every numeric
+claim is required to cite a source already in the raw tool output (the
+synthesizer's hard rule), and the factuality eval verifies that rule held.
+
+### Factuality baseline (pinned)
+
+| Ticker | Score | Verified | Source |
+|---|---|---|---|
+| NVDA | **1.00** | 17 / 17 | [`eval/runs/NVDA_20260426_factuality.json`](eval/runs/NVDA_20260426_factuality.json) |
+| AAPL | 0.958 | 23 / 24 | [`eval/runs/AAPL_20260426_factuality.json`](eval/runs/AAPL_20260426_factuality.json) |
+| MSFT | 0.944 | 17 / 18 | [`eval/runs/MSFT_20260426_factuality.json`](eval/runs/MSFT_20260426_factuality.json) |
+| META | **1.00** | 11 / 11 | [`eval/runs/META_20260426_factuality.json`](eval/runs/META_20260426_factuality.json) |
+| JPM | 0.955 | 21 / 22 | [`eval/runs/JPM_20260426_factuality.json`](eval/runs/JPM_20260426_factuality.json) |
+
+LLM-as-judge (Gemini 2.5 Flash) extracts every factual claim from the brief
+and verifies each against `raw_data`. See [HOW_IT_WORKS.md →
+"Empirical results"](docs/HOW_IT_WORKS.md#empirical-results-v01) for
+a deeper read of what the eval catches and what it doesn't.
 
 ---
 

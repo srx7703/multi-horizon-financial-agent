@@ -30,6 +30,8 @@ env/
 *.key
 
 # --- Runtime artifacts ---
+# outputs/ is ad-hoc. Demo assets pinned to README live under docs/assets/
+# (whitelisted there). Use `git add -f` for one-off pins inside outputs/.
 outputs/*.md
 outputs/*.png
 outputs/*.json
@@ -42,6 +44,10 @@ outputs/*.zip
 eval/runs/*
 !eval/runs/.gitkeep
 !eval/runs/NVDA_20260426_factuality.json
+!eval/runs/AAPL_20260426_factuality.json
+!eval/runs/MSFT_20260426_factuality.json
+!eval/runs/META_20260426_factuality.json
+!eval/runs/JPM_20260426_factuality.json
 
 # --- SEC cache (local downloader output) ---
 sec-edgar-filings/

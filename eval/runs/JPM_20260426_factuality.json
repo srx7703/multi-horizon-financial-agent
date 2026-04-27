@@ -1,0 +1,12 @@
+{
+  "score": 0.955,
+  "total_claims": 22,
+  "verified_claims": 21,
+  "flagged": [
+    {
+      "claim": "+16.0%",
+      "verdict": "not_found",
+      "reason": "The provided sources do not contain information about a 16.0% increase for any specific metric related to JPMorgan Chase & Co."
+    }
+  ]
+}

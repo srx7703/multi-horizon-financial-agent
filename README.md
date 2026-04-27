@@ -25,33 +25,39 @@
 
 ## See it run
 
-```bash
-mhfa earnings-recap NVDA --output ./outputs
-# → outputs/NVDA_<YYYYMMDD>_brief.md  (markdown)
-# → outputs/NVDA_<YYYYMMDD>_chart.png (price chart)
-# → outputs/NVDA_<YYYYMMDD>_raw.json  (raw tool output, for eval)
+```console
+$ mhfa earnings-recap NVDA --output ./outputs
+
+  brief : outputs/NVDA_20260426_brief.md
+  chart : outputs/NVDA_20260426_chart.png
+  raw   : outputs/NVDA_20260426_raw.json
+  tools : 5 calls, 0 errors
 ```
 
-<!-- Replace with real screenshots after running locally — see docs/HOW_TO_SCREENSHOT.md -->
+Total wall time on the reference NVDA run: **~2 s tool layer · ~30 s
+synthesis (Gemini 2.5 Pro) · ~30 s factuality eval (Flash)**. Per-tool
+timing from `_metadata.calls` in `outputs/NVDA_20260426_raw.json`:
+
+| Tool | Args | Duration | OK |
+|---|---|---|---|
+| `sec.fetch_latest_10q` | `NVDA` | 0 ms (local cache hit) | ✓ |
+| `sec.fetch_recent_8k` | `NVDA, max=5` | 0 ms (local cache hit) | ✓ |
+| `market.get_quote_history` | `NVDA, 3mo` | 702 ms | ✓ |
+| `market.get_company_info` | `NVDA` | 329 ms | ✓ |
+| `search.web_search` | `"NVDA latest earnings analyst reaction"` | 923 ms | ✓ |
+
 <table>
 <tr>
 <td width="50%" valign="top">
 
-**Sample brief output**
-([full markdown](docs/assets/demo_brief_nvda.md))
+**Brief render** ([GitHub preview](docs/assets/demo_brief_nvda.md) · [raw markdown](docs/assets/demo_brief_nvda.md?plain=1))
 
-> NVIDIA reported another quarter of explosive growth, with Q3 FY26 revenue
-> reaching **$57.01 billion** [10-Q], up **62.5% YoY**. Net income surged to
-> **$31.91 billion**, and the company executed **$12.57 billion in share
-> repurchases**…
->
-> **Key risk**: inventories increased **+96%** since January 2025 to **$19.78
-> billion**, creating risk of write-downs if demand shifts.
+![NVDA brief render](docs/assets/demo_brief_render_nvda.png)
 
 </td>
 <td width="50%" valign="top">
 
-**Price chart (3-month, auto-generated)**
+**Price chart** (3-month, auto-generated)
 
 ![NVDA 3-month chart](docs/assets/demo_chart_nvda.png)
 
@@ -78,6 +84,45 @@ LLM-as-judge (Gemini 2.5 Flash) extracts every factual claim from the brief
 and verifies each against `raw_data`. See [HOW_IT_WORKS.md →
 "Empirical results"](docs/HOW_IT_WORKS.md#empirical-results-v01) for
 a deeper read of what the eval catches and what it doesn't.
+
+<details>
+<summary><strong>Sample factuality run output</strong> — NVDA (perfect) and MSFT (one flag)</summary>
+
+```json
+// eval/runs/NVDA_20260426_factuality.json
+{
+  "score": 1.0,
+  "total_claims": 17,
+  "verified_claims": 17,
+  "flagged": []
+}
+```
+
+```json
+// eval/runs/MSFT_20260426_factuality.json
+{
+  "score": 0.944,
+  "total_claims": 18,
+  "verified_claims": 17,
+  "flagged": [
+    {
+      "claim": "EPS (diluted) +59.8%",
+      "verdict": "contradicted",
+      "reason": "The source states that Diluted EPS is $5.16 (vs $3.23 YoY), which implies a YoY increase of 59.75%, not 59.8%."
+    }
+  ]
+}
+```
+
+The MSFT flag is a rounding-precision strict-mode hit: the synthesizer
+rounded $5.16 / $3.23 to **+59.8%**; the judge computed **59.75%** and
+called it `contradicted`. Strict-mode signal if you care about exact
+reproducibility, arguably noise otherwise — kept as-is for v0.1 because
+explicit miscalibration is more useful than silent agreement. The full
+flagged-claim taxonomy across all 5 runs is in HOW_IT_WORKS § Empirical
+results.
+
+</details>
 
 ---
 

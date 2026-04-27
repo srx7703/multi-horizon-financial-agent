@@ -89,20 +89,13 @@ def hermetic_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     # plot_price_history is imported into the workflow module, patch there
     monkeypatch.setattr(earnings_recap, "plot_price_history", lambda *a, **kw: None)
 
-    # 3. Stub Anthropic client used by synthesizer
-    class _Block:
-        type = "text"
-        def __init__(self, t: str) -> None: self.text = t
-    class _Resp:
-        content = [_Block("# AAPL — Quarterly Earnings Recap\n\nstub brief.")]
-    class _Msgs:
-        def create(self, **_: Any) -> _Resp: return _Resp()
-    class _C:
-        messages = _Msgs()
+    # 3. Stub the provider-agnostic completion adapter used by synthesizer
     monkeypatch.setattr(
         synthesizer,
-        "get_client",
-        lambda role: (_C(), "claude-fake", {"max_tokens": 100, "temperature": 0.0}),
+        "complete_text",
+        lambda role, *, user_message, system_message=None: (
+            "# AAPL — Quarterly Earnings Recap\n\nstub brief."
+        ),
     )
     return tmp_path
 

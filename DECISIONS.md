@@ -109,6 +109,47 @@ direct path stays a one-env-var switch for users without GCP.
 
 ---
 
+## D-009 — v0.1 ships with Gemini 2.5 on Vertex; Anthropic deferred to Phase 2 A/B
+
+**Decision**: All four primary roles (planner, tool_synth, synthesizer,
+judge) use Gemini on Vertex AI for v0.1 — `gemini-2.5-flash` for the cheap
+roles, `gemini-2.5-pro` for the synthesizer. Anthropic stays wired and
+configured as `synthesizer_b` for the Phase 2 A/B harness.
+
+**Rationale**: Anthropic on Vertex hit a quota Catch-22 for new GCP projects:
+GCP's auto-rejection algorithm requires baseline usage history before
+granting non-zero TPM, but you can't accumulate usage without quota. All six
+of my initial quota requests (across three Anthropic models in three
+regions) were auto-rejected within hours. Manual review takes 1-3 business
+days; paid GCP support escalation requires a support contract.
+
+Gemini 2.5 Pro / Flash on Vertex have non-zero default quota immediately,
+no Model Garden activation, no Marketplace API enablement. Same GCP project,
+same billing line, same credit pool — zero friction.
+
+**Why this isn't a setback**: The architectural commitment in this project is
+*layered model routing as config* (one yaml controls all model choices),
+not a specific vendor. The fact that I hit a real Vertex onboarding
+constraint and pivoted in <90 minutes by changing one config file is itself
+the strongest evidence that the abstraction works.
+
+**Phase 2 A/B is now stronger**: original plan was "Opus vs Multi-Horizon
+Gemma adapter". With Gemini 2.5 Pro as the v0.1 synthesizer and Anthropic
+still wired in `synthesizer_b`, Phase 2 becomes a three-way comparison —
+**Gemini 2.5 Pro vs Opus vs Gemma 4 31B adapter** — same prompt, same
+golden set, BERTScore + paired-t. The Gemini-vs-Gemma leg of that
+comparison is same-family (Gemma is Gemini's open-weights sibling), which
+is methodologically tighter than cross-vendor comparison.
+
+**Migration path**: when Anthropic Vertex quota lands (or a paid support
+escalation completes), flip `synthesizer.provider: gemini` →
+`synthesizer.provider: anthropic` in `configs/models.yaml`. No code change.
+
+---
+
 ## Revision log
 
 - v0.1 — D-001 through D-008 captured at MVP scaffold time.
+- v0.1 (post-deploy) — D-009 added after Vertex Anthropic onboarding hit
+  the new-project quota Catch-22; pivoted to Gemini 2.5 with no architectural
+  change required.

@@ -36,8 +36,12 @@ outputs/*.json
 outputs/*.zip
 !outputs/.gitkeep
 
-# --- Eval runs (large, regenerable) ---
-eval/runs/
+# --- Eval runs ---
+# Ad-hoc runs are regenerable junk; the few baselines cited in README /
+# HOW_IT_WORKS are pinned via the whitelist below.
+eval/runs/*
+!eval/runs/.gitkeep
+!eval/runs/NVDA_20260426_factuality.json
 
 # --- SEC cache (local downloader output) ---
 sec-edgar-filings/

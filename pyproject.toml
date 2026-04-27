@@ -8,6 +8,7 @@ license = {text = "MIT"}
 authors = [{name = "Ruoxuan Song"}]
 dependencies = [
     "anthropic[vertex]>=0.40",
+    "google-genai>=1.0",
     "yfinance>=0.2.40",
     "tavily-python>=0.5",
     "matplotlib>=3.8",

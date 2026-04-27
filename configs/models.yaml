@@ -1,34 +1,72 @@
-# Layered model routing. One file controls which Claude model handles each
-# step of the agent loop. Lets us run cost/quality ablations and Phase 2
-# A/B (Opus vs Multi-Horizon Gemma adapter) without code changes.
+# Layered model routing. One file controls which model handles each step
+# of the agent loop. Lets us run cost/quality ablations and Phase 2 A/B
+# without code changes.
+#
+# Each role declares:
+#   provider:        "gemini" | "anthropic"
+#   model:           provider-specific model id
+#   max_tokens:      generation cap (visible output tokens)
+#   temperature:     sampling temperature
+#   thinking_budget: (gemini-2.5 only) 0 disables thinking. Mechanical
+#                    extract/verify steps don't need reasoning and thinking
+#                    silently eats max_output_tokens before any text appears.
+#
+# v0.1 ships with Gemini on Vertex AI (decision D-009 — Anthropic on Vertex
+# hit a quota Catch-22 for new projects). Anthropic remains wired via
+# `synthesizer_b` for the Phase 2 A/B harness; swapping is a one-line
+# `provider` flip per role.
 
 roles:
   planner:
-    model: claude-sonnet-4-6
+    provider: gemini
+    model: gemini-2.5-flash
     max_tokens: 2000
     temperature: 0.0
-    rationale: "Structured tool plan; quality plateaus before Opus, Sonnet is the cost/latency sweet spot."
+    rationale: "Structured tool plan; Flash is the cost/latency sweet spot for deterministic JSON output."
 
   tool_synth:
-    model: claude-sonnet-4-6
+    provider: gemini
+    model: gemini-2.5-flash
     max_tokens: 4000
     temperature: 0.2
-    rationale: "Mid-loop per-document summarization. High call volume; Sonnet beats Opus on cost-per-summary."
+    rationale: "Mid-loop per-document summarization. High call volume; Flash beats Pro on cost-per-summary."
 
   synthesizer:
+    provider: gemini
+    model: gemini-2.5-pro
+    max_tokens: 8000
+    temperature: 0.3
+    rationale: "User-facing final brief. Quality drives entire project value; Pro is the production tier."
+
+  judge:
+    provider: gemini
+    model: gemini-2.5-flash
+    max_tokens: 4000
+    temperature: 0.0
+    thinking_budget: 0
+    rationale: |
+      LLM-as-judge for factuality eval. Per-claim verification is mechanical
+      and well-scoped. thinking_budget: 0 disables Flash's thinking mode —
+      otherwise thinking silently consumes the entire max_tokens budget
+      before any visible JSON appears (extract step returned 92 chars on
+      a 1000-token cap during first run). 4000 tokens covers ~50 claims
+      worth of JSON array.
+
+  # Phase 2 A/B harness — Anthropic Claude as the alternate synthesizer.
+  # Activated by passing role="synthesizer_b" or via CLI --synthesizer b.
+  # Currently blocked on Vertex quota approval; flip to provider=anthropic
+  # once quota lands.
+  synthesizer_b:
+    provider: anthropic
     model: claude-opus-4-7
     max_tokens: 8000
     temperature: 0.3
-    rationale: "User-facing final brief. This is what people read; quality drives entire project value."
+    rationale: "Phase 2 — Anthropic Opus as the cross-vendor reference. Same prompt, different generator, BERTScore + paired-t between (a) and (b)."
 
-  judge:
-    model: claude-haiku-4-5
-    max_tokens: 1000
-    temperature: 0.0
-    rationale: "LLM-as-judge for factuality eval. High-volume per-claim verification; Haiku is cost-optimal for well-scoped rubric."
-
-  # Phase 2 — populated when Multi-Horizon adapter is served behind a vLLM endpoint.
-  # synthesizer_b:
+  # Phase 2 — populated when Multi-Horizon Gemma adapter is served behind a
+  # vLLM endpoint. Three-way A/B becomes (Gemini Pro vs Opus vs Gemma adapter).
+  # synthesizer_c:
+  #   provider: vllm
   #   model: mh-gemma-4-31b-adapter
   #   endpoint: http://localhost:8000/v1
   #   max_tokens: 8000
